@@ -9,6 +9,7 @@ import org.webrtc.VideoProcessor;
 import org.webrtc.VideoSink;
 import org.webrtc.VideoTrack;
 
+import java.lang.IllegalStateException;
 import java.util.ArrayList;
 import java.util.List;
 import android.util.Log;
@@ -39,9 +40,21 @@ public class LocalVideoTrack extends LocalTrack implements VideoProcessor {
     public void removeProcessor(ExternalVideoFrameProcessing processor) {
         Log.i(TAG, "remove processor");
         synchronized (processors) {
-            processors.remove(processor);
-            if (!processors.isEmpty()) {
-                processors.get(processors.size()-1).setSink(sink);
+            int toRemove = processors.indexOf(processor);
+            if (toRemove < 0) {
+                throw new IllegalStateException("processor not found");
+            }
+            processors.remove(toRemove);
+            VideoSink next;
+            if (processors.size() >= toRemove) {
+                // removed last processor, next sink is final sink
+                next = sink;
+            } else {
+                next = processors.get(toRemove);
+            }
+            if (toRemove > 0) {
+                // removed processor was not first in line, fix broken sink line
+                processors.get(toRemove-1).setSink(next);
             }
         }
     }
