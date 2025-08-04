@@ -79,6 +79,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 
 import io.flutter.plugin.common.MethodChannel.Result;
 
@@ -117,6 +119,7 @@ public class GetUserMediaImpl {
     private AudioDeviceInfo preferredInput = null;
     private boolean isTorchOn;
     private Intent mediaProjectionData = null;
+    private ExecutorService cameraAcquisitionService = Executors.newSingleThreadExecutor();
 
 
     public void screenRequestPermissions(ResultReceiver resultReceiver) {
@@ -602,54 +605,58 @@ public class GetUserMediaImpl {
             Result result,
             MediaStream mediaStream,
             List<String> grantedPermissions) {
-        ConstraintsMap[] trackParams = new ConstraintsMap[2];
 
-        // If we fail to create either, destroy the other one and fail.
-        if ((grantedPermissions.contains(PERMISSION_AUDIO)
-                && (trackParams[0] = getUserAudio(constraints, mediaStream)) == null)
-                || (grantedPermissions.contains(PERMISSION_VIDEO)
-                && (trackParams[1] = getUserVideo(constraints, mediaStream)) == null)) {
-            for (MediaStreamTrack track : mediaStream.audioTracks) {
-                if (track != null) {
-                    track.dispose();
+        cameraAcquisitionService.submit(() -> {
+            ConstraintsMap[] trackParams = new ConstraintsMap[2];
+
+            // If we fail to create either, destroy the other one and fail.
+            if ((grantedPermissions.contains(PERMISSION_AUDIO)
+                    && (trackParams[0] = getUserAudio(constraints, mediaStream)) == null)
+                    || (grantedPermissions.contains(PERMISSION_VIDEO)
+                    && (trackParams[1] = getUserVideo(constraints, mediaStream)) == null)) {
+                for (MediaStreamTrack track : mediaStream.audioTracks) {
+                    if (track != null) {
+                        track.dispose();
+                    }
+                }
+                for (MediaStreamTrack track : mediaStream.videoTracks) {
+                    if (track != null) {
+                        track.dispose();
+                    }
+                }
+                // XXX The following does not follow the getUserMedia() algorithm
+                // specified by
+                // https://www.w3.org/TR/mediacapture-streams/#dom-mediadevices-getusermedia
+                // with respect to distinguishing the various causes of failure.
+                resultError("getUserMedia", "Failed to create new track.", result);
+                return;
+            }
+
+            ConstraintsArray audioTracks = new ConstraintsArray();
+            ConstraintsArray videoTracks = new ConstraintsArray();
+            ConstraintsMap successResult = new ConstraintsMap();
+
+            for (ConstraintsMap trackParam : trackParams) {
+                if (trackParam == null) {
+                    continue;
+                }
+                if (trackParam.getString("kind").equals("audio")) {
+                    audioTracks.pushMap(trackParam);
+                } else {
+                    videoTracks.pushMap(trackParam);
                 }
             }
-            for (MediaStreamTrack track : mediaStream.videoTracks) {
-                if (track != null) {
-                    track.dispose();
-                }
-            }
-            // XXX The following does not follow the getUserMedia() algorithm
-            // specified by
-            // https://www.w3.org/TR/mediacapture-streams/#dom-mediadevices-getusermedia
-            // with respect to distinguishing the various causes of failure.
-            resultError("getUserMedia", "Failed to create new track.", result);
-            return;
-        }
 
-        ConstraintsArray audioTracks = new ConstraintsArray();
-        ConstraintsArray videoTracks = new ConstraintsArray();
-        ConstraintsMap successResult = new ConstraintsMap();
+            String streamId = mediaStream.getId();
+            Log.d(TAG, "MediaStream id: " + streamId);
+            stateProvider.putLocalStream(streamId, mediaStream);
 
-        for (ConstraintsMap trackParam : trackParams) {
-            if (trackParam == null) {
-                continue;
-            }
-            if (trackParam.getString("kind").equals("audio")) {
-                audioTracks.pushMap(trackParam);
-            } else {
-                videoTracks.pushMap(trackParam);
-            }
-        }
-
-        String streamId = mediaStream.getId();
-        Log.d(TAG, "MediaStream id: " + streamId);
-        stateProvider.putLocalStream(streamId, mediaStream);
-
-        successResult.putString("streamId", streamId);
-        successResult.putArray("audioTracks", audioTracks.toArrayList());
-        successResult.putArray("videoTracks", videoTracks.toArrayList());
-        result.success(successResult.toMap());
+            successResult.putString("streamId", streamId);
+            successResult.putArray("audioTracks", audioTracks.toArrayList());
+            successResult.putArray("videoTracks", videoTracks.toArrayList());
+            result.success(successResult.toMap());
+            
+        });
     }
 
     private boolean isFacing = true;
@@ -712,19 +719,26 @@ public class GetUserMediaImpl {
         // TODO Enable camera2 enumerator
         CameraEnumerator cameraEnumerator;
 
-        if (Camera2Enumerator.isSupported(applicationContext)) {
-            Log.d(TAG, "Creating video capturer using Camera2 API.");
-            cameraEnumerator = new Camera2Enumerator(applicationContext);
-        } else {
-            Log.d(TAG, "Creating video capturer using Camera1 API.");
-            cameraEnumerator = new Camera1Enumerator(false);
-        }
+        // if (Camera2Enumerator.isSupported(applicationContext)) {
+        //     Log.d(TAG, "Creating video capturer using Camera2 API.");
+        //     cameraEnumerator = new Camera2Enumerator(applicationContext);
+        // } else {
+        //     Log.d(TAG, "Creating video capturer using Camera1 API.");
+        //     cameraEnumerator = new Camera1Enumerator(false);
+        // }
+        //
+        // final Context context = stateProvider.getApplicationContext();c
 
         String facingMode = getFacingMode(videoConstraintsMap);
         isFacing = facingMode == null || !facingMode.equals("environment");
         String deviceId = getSourceIdConstraint(videoConstraintsMap);
+        Log.i(TAG, "DEVTO create enumerator");
+        cameraEnumerator = CameraCapturerUtils.createCameraEnumerator(applicationContext);
+        Log.i(TAG, "DEVTO create capturer");
+        Pair<String, VideoCapturer> result = CameraCapturerUtils.createCameraCapturer(applicationContext, isFacing, deviceId);
+        Log.i(TAG, "DEVTO capturer created");
         CameraEventsHandler cameraEventsHandler = new CameraEventsHandler();
-        Pair<String, VideoCapturer> result = createVideoCapturer(cameraEnumerator, isFacing, deviceId, cameraEventsHandler);
+        // Pair<String, VideoCapturer> result = createVideoCapturer(cameraEnumerator, isFacing, deviceId, cameraEventsHandler);
 
         if (result == null) {
             return null;
@@ -732,6 +746,12 @@ public class GetUserMediaImpl {
 
         deviceId = result.first;
         VideoCapturer videoCapturer = result.second;
+        if (videoCapturer instanceof CameraCapturerWithSize) {
+            Log.i(TAG, "DEVTO registering handler");
+            ((CameraCapturerWithSize)videoCapturer).cameraEventsDispatchHandler.registerHandler(cameraEventsHandler);
+        } else {
+            Log.e(TAG, "DEVTO failed to register handler");
+        }
 
         if (facingMode == null && cameraEnumerator.isFrontFacing(deviceId)) {
             facingMode = "user";
@@ -751,8 +771,10 @@ public class GetUserMediaImpl {
             return null;
         }
 
+        Log.i(TAG, "DEVTO initializing capturer");
         videoCapturer.initialize(
                 surfaceTextureHelper, applicationContext, videoSource.getCapturerObserver());
+        Log.i(TAG, "DEVTO capturer initialized");
 
         VideoCapturerInfoEx info = new VideoCapturerInfoEx();
 
@@ -791,6 +813,8 @@ public class GetUserMediaImpl {
         } else if (videoCapturer instanceof Camera2Capturer) {
             CameraManager cameraManager = (CameraManager) applicationContext.getSystemService(Context.CAMERA_SERVICE);
             actualSize = Camera2Helper.findClosestCaptureFormat(cameraManager, deviceId, targetWidth, targetHeight);
+        } else if (videoCapturer instanceof CameraCapturerWithSize) {
+            actualSize = ((CameraCapturerWithSize)videoCapturer).findCaptureFormat(targetWidth, targetHeight);
         }
 
         if (actualSize != null) {
@@ -799,10 +823,13 @@ public class GetUserMediaImpl {
         }
 
         info.cameraEventsHandler = cameraEventsHandler;
+        Log.e(TAG, "DEVTO start capture");
         videoCapturer.startCapture(targetWidth, targetHeight, targetFps);
+        Log.e(TAG, "DEVTO started capture");
 
         cameraEventsHandler.waitForCameraOpen();
 
+        Log.e(TAG, "DEVTO camera started");
 
         String trackId = stateProvider.getNextTrackUUID();
         mVideoCapturers.put(trackId, info);
@@ -840,26 +867,28 @@ public class GetUserMediaImpl {
     }
 
     void removeVideoCapturer(String id) {
-        VideoCapturerInfoEx info = mVideoCapturers.get(id);
-        if (info != null) {
-            try {
-                info.capturer.stopCapture();
-                if (info.cameraEventsHandler != null) {
-                    info.cameraEventsHandler.waitForCameraClosed();
-                }
-            } catch (InterruptedException e) {
-                Log.e(TAG, "removeVideoCapturer() Failed to stop video capturer");
-            } finally {
-                info.capturer.dispose();
-                mVideoCapturers.remove(id);
-                SurfaceTextureHelper helper = mSurfaceTextureHelpers.get(id);
-                if (helper != null) {
-                    helper.stopListening();
-                    helper.dispose();
-                    mSurfaceTextureHelpers.remove(id);
+        cameraAcquisitionService.submit(() -> {
+            VideoCapturerInfoEx info = mVideoCapturers.get(id);
+            if (info != null) {
+                try {
+                    info.capturer.stopCapture();
+                    if (info.cameraEventsHandler != null) {
+                        info.cameraEventsHandler.waitForCameraClosed();
+                    }
+                } catch (InterruptedException e) {
+                    Log.e(TAG, "removeVideoCapturer() Failed to stop video capturer");
+                } finally {
+                    info.capturer.dispose();
+                    mVideoCapturers.remove(id);
+                    SurfaceTextureHelper helper = mSurfaceTextureHelpers.get(id);
+                    if (helper != null) {
+                        helper.stopListening();
+                        helper.dispose();
+                        mSurfaceTextureHelpers.remove(id);
+                    }
                 }
             }
-        }
+        });
     }
 
     @RequiresApi(api = VERSION_CODES.M)
