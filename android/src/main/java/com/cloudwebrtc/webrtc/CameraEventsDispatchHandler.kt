@@ -24,7 +24,7 @@ import android.util.Log
  */
 class CameraEventsDispatchHandler : CameraEventsHandler {
     private val handlers = mutableSetOf<CameraEventsHandler>()
-    private val TAG = "DEVTO CameraEventsDispatchHandler"
+    private val TAG = "CameraEventsDispatchHandler"
 
     @Synchronized
     fun registerHandler(handler: CameraEventsHandler) {

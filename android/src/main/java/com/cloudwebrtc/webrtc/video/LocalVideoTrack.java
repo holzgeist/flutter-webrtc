@@ -15,7 +15,7 @@ import java.util.List;
 import android.util.Log;
 
 public class LocalVideoTrack extends LocalTrack implements VideoProcessor {
-    static private final String TAG = "DEVTO LocalVideoTrack";
+    static private final String TAG = "LocalVideoTrack";
     public interface ExternalVideoFrameProcessing extends VideoSink {
         void setSink(VideoSink videoSink);
     }

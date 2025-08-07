@@ -732,11 +732,8 @@ public class GetUserMediaImpl {
         String facingMode = getFacingMode(videoConstraintsMap);
         isFacing = facingMode == null || !facingMode.equals("environment");
         String deviceId = getSourceIdConstraint(videoConstraintsMap);
-        Log.i(TAG, "DEVTO create enumerator");
         cameraEnumerator = CameraCapturerUtils.createCameraEnumerator(applicationContext);
-        Log.i(TAG, "DEVTO create capturer");
         Pair<String, VideoCapturer> result = CameraCapturerUtils.createCameraCapturer(applicationContext, isFacing, deviceId);
-        Log.i(TAG, "DEVTO capturer created");
         CameraEventsHandler cameraEventsHandler = new CameraEventsHandler();
         // Pair<String, VideoCapturer> result = createVideoCapturer(cameraEnumerator, isFacing, deviceId, cameraEventsHandler);
 
@@ -747,10 +744,7 @@ public class GetUserMediaImpl {
         deviceId = result.first;
         VideoCapturer videoCapturer = result.second;
         if (videoCapturer instanceof CameraCapturerWithSize) {
-            Log.i(TAG, "DEVTO registering handler");
             ((CameraCapturerWithSize)videoCapturer).cameraEventsDispatchHandler.registerHandler(cameraEventsHandler);
-        } else {
-            Log.e(TAG, "DEVTO failed to register handler");
         }
 
         if (facingMode == null && cameraEnumerator.isFrontFacing(deviceId)) {
@@ -771,10 +765,8 @@ public class GetUserMediaImpl {
             return null;
         }
 
-        Log.i(TAG, "DEVTO initializing capturer");
         videoCapturer.initialize(
                 surfaceTextureHelper, applicationContext, videoSource.getCapturerObserver());
-        Log.i(TAG, "DEVTO capturer initialized");
 
         VideoCapturerInfoEx info = new VideoCapturerInfoEx();
 
@@ -823,13 +815,9 @@ public class GetUserMediaImpl {
         }
 
         info.cameraEventsHandler = cameraEventsHandler;
-        Log.e(TAG, "DEVTO start capture");
         videoCapturer.startCapture(targetWidth, targetHeight, targetFps);
-        Log.e(TAG, "DEVTO started capture");
 
         cameraEventsHandler.waitForCameraOpen();
-
-        Log.e(TAG, "DEVTO camera started");
 
         String trackId = stateProvider.getNextTrackUUID();
         mVideoCapturers.put(trackId, info);

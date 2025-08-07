@@ -146,42 +146,33 @@ internal constructor(
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
         val helperExecutor = Executor { command ->
             surfaceTextureHelper.handler.let {
-                Logging.d(TAG, "DEVTO surfaceTextureHelper.handler")
                 if (it.looper.thread.isAlive) {
-                Logging.d(TAG, "DEVTO surfaceTextureHelper.handler alive $command")
                     it.post(command)
                 }
             }
         }
         cameraProviderFuture.addListener(
             {
-                Logging.d(TAG, "DEVTO cameraProviderFutureListener")
                 // Used to bind the lifecycle of cameras to the lifecycle owner
                 cameraProvider = cameraProviderFuture.get()
                 obtainCameraConfiguration()
-                Logging.d(TAG, "DEVTO obtained camera config")
 
                 surfaceTextureHelper.setTextureSize(captureFormat?.width ?: width, captureFormat?.height ?: height)
-                Logging.d(TAG, "DEVTO 1")
 
                 surface = Surface(surfaceTextureHelper.surfaceTexture)
-                Logging.d(TAG, "DEVTO 2")
                 surfaceProvider = SurfaceProvider { request ->
                     surface?.let {
                         request.provideSurface(it, helperExecutor) { }
                     } ?: request.willNotProvideSurface()
                 }
-                Logging.d(TAG, "DEVTO 3")
 
                 // Select camera by ID
                 val cameraSelector = CameraSelector.Builder()
                     .addCameraFilter { cameraInfo -> cameraInfo.filter { Camera2CameraInfo.from(it).cameraId == cameraDevice.deviceId } }
                     .build()
-                Logging.d(TAG, "DEVTO 4")
 
                 try {
                     ContextCompat.getMainExecutor(context).execute {
-                Logging.d(TAG, "DEVTO 5")
                         // Preview
                         val preview = Preview.Builder()
                             .setResolutionSelector(
@@ -199,11 +190,9 @@ internal constructor(
                             .also {
                                 it.setSurfaceProvider(surfaceProvider)
                             }
-                Logging.d(TAG, "DEVTO 6")
 
                         // Unbind use cases before rebinding
                         cameraProvider.unbindAll()
-                Logging.d(TAG, "DEVTO 7")
 
                         // Bind use cases to camera
                         camera = cameraProvider.bindToLifecycle(
@@ -212,8 +201,6 @@ internal constructor(
                             preview,
                             *useCases,
                         )
-
-                        Logging.d(TAG, "DEVTO bound $camera to $useCases")
 
                         cameraThreadHandler.post {
                             sessionCallback.onDone(this@CameraXSession)
