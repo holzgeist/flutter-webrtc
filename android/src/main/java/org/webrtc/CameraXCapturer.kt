@@ -39,7 +39,7 @@ internal class CameraXCapturer(
     eventsHandler: CameraVideoCapturer.CameraEventsHandler?,
     private val useCases: Array<out UseCase> = emptyArray(),
 ) : CameraCapturer(cameraName, eventsHandler, enumerator) {
-    final val TAG = "CameraXCapturer"
+    val TAG = "CameraXCapturer"
 
     @FlowObservable
     @get:FlowObservable

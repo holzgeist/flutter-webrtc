@@ -210,7 +210,6 @@ public class FlutterRTCFrameCryptor {
             result.success(paramsResult.toMap());
         } else {
             result.error("frameCryptorFactoryCreateFrameCryptorFailed", "type must be sender or receiver", null);
-            return;
         }
     }
 

@@ -119,7 +119,7 @@ public class GetUserMediaImpl {
     private AudioDeviceInfo preferredInput = null;
     private boolean isTorchOn;
     private Intent mediaProjectionData = null;
-    private ExecutorService cameraAcquisitionService = Executors.newSingleThreadExecutor();
+    private final ExecutorService cameraAcquisitionService = Executors.newSingleThreadExecutor();
 
 
     public void screenRequestPermissions(ResultReceiver resultReceiver) {
@@ -187,7 +187,6 @@ public class GetUserMediaImpl {
                 Log.w(
                         TAG,
                         "Can't run requestStart() due to a low API level. API level 21 or higher is required.");
-                return;
             } else {
                 MediaProjectionManager mediaProjectionManager =
                         (MediaProjectionManager) activity.getSystemService(Context.MEDIA_PROJECTION_SERVICE);

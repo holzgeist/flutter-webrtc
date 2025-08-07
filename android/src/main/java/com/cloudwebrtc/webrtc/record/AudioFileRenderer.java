@@ -205,7 +205,7 @@ class AudioFileRenderer implements SamplesReadyCallback {
                         
                         // Calculate presentation time (microseconds)
                         // Assuming 16-bit samples: data.length bytes / 2 bytes per sample / sample rate * 1000000
-                        long frameTime = (long) data.length * 1000000L / (2 * audioSamples.getSampleRate() * audioSamples.getChannelCount());
+                        long frameTime = (long) data.length * 1000000L / (2L * audioSamples.getSampleRate() * audioSamples.getChannelCount());
                         
                         audioEncoder.queueInputBuffer(bufferIndex, 0, data.length, presTime, 0);
                         presTime += frameTime;

@@ -109,7 +109,7 @@ object CameraCapturerUtils {
         val targetVideoCapturer = provider.provideCapturer(context, isFacing, sourceId, cameraEventsDispatchHandler)
 
         if (targetVideoCapturer !is VideoCapturerWithSize) {
-            Log.w(TAG, "unknown CameraCapturer class: ${targetVideoCapturer.javaClass.canonicalName}");
+            Log.w(TAG, "unknown CameraCapturer class: ${targetVideoCapturer.javaClass.canonicalName}")
         }
 
         return Pair(

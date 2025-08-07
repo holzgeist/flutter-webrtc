@@ -188,7 +188,7 @@ internal constructor(
                             .applyCameraSettings()
                             .build()
                             .also {
-                                it.setSurfaceProvider(surfaceProvider)
+                                it.surfaceProvider = surfaceProvider
                             }
 
                         // Unbind use cases before rebinding
@@ -218,7 +218,7 @@ internal constructor(
         val cameraExtender = Camera2Interop.Extender(this)
 
         cameraDevice.physicalId?.let { physicalId ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            if (VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 cameraExtender.setPhysicalCameraId(physicalId)
             }
         }

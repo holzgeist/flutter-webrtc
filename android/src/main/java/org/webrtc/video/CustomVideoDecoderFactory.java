@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CustomVideoDecoderFactory implements VideoDecoderFactory {
-    private SoftwareVideoDecoderFactory softwareVideoDecoderFactory = new SoftwareVideoDecoderFactory();
-    private WrappedVideoDecoderFactory wrappedVideoDecoderFactory;
+    private final SoftwareVideoDecoderFactory softwareVideoDecoderFactory = new SoftwareVideoDecoderFactory();
+    private final WrappedVideoDecoderFactory wrappedVideoDecoderFactory;
     private boolean forceSWCodec  = false;
 
     private List<String> forceSWCodecs = new ArrayList<>();

@@ -48,12 +48,12 @@ internal object DelegateAccess {
 internal val <T> KProperty0<T>.delegate: Any?
     get() {
         try {
-            DelegateAccess.delegateRequested.set(true)
+            delegateRequested.set(true)
             this.get()
             return DelegateAccess.delegate.get()
         } finally {
             DelegateAccess.delegate.set(null)
-            DelegateAccess.delegateRequested.set(false)
+            delegateRequested.set(false)
         }
     }
 
@@ -84,8 +84,8 @@ internal constructor(
 ) : MutableStateFlow<T> by flow {
 
     operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
-        if (DelegateAccess.delegateRequested.get() == true) {
-            DelegateAccess.delegate.set(this)
+        if (delegateRequested.get() == true) {
+            delegate.set(this)
         }
         return flow.value
     }
@@ -107,8 +107,8 @@ internal constructor(
 ) : StateFlow<T> by flow {
 
     operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
-        if (DelegateAccess.delegateRequested.get() == true) {
-            DelegateAccess.delegate.set(this)
+        if (delegateRequested.get() == true) {
+            delegate.set(this)
         }
         return flow.value
     }

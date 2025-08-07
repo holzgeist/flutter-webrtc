@@ -38,9 +38,9 @@ import io.flutter.plugin.common.MethodChannel;
 public class CameraUtils {
   private static final String TAG = "CameraUtils";
   Activity activity;
-  private GetUserMediaImpl getUserMediaImpl;
+  private final GetUserMediaImpl getUserMediaImpl;
   private boolean isTorchOn = false;
-  private DeviceOrientationManager deviceOrientationManager;
+  private final DeviceOrientationManager deviceOrientationManager;
   public CameraUtils(GetUserMediaImpl getUserMediaImpl, Activity activity) {
     this.getUserMediaImpl = getUserMediaImpl;
     this.activity = activity;
