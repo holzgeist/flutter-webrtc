@@ -715,18 +715,8 @@ public class GetUserMediaImpl {
         //   2. all camera support level should greater than LEGACY
         //   see:
         // https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics.html#INFO_SUPPORTED_HARDWARE_LEVEL
-        // TODO Enable camera2 enumerator
         CameraEnumerator cameraEnumerator;
 
-        // if (Camera2Enumerator.isSupported(applicationContext)) {
-        //     Log.d(TAG, "Creating video capturer using Camera2 API.");
-        //     cameraEnumerator = new Camera2Enumerator(applicationContext);
-        // } else {
-        //     Log.d(TAG, "Creating video capturer using Camera1 API.");
-        //     cameraEnumerator = new Camera1Enumerator(false);
-        // }
-        //
-        // final Context context = stateProvider.getApplicationContext();c
 
         String facingMode = getFacingMode(videoConstraintsMap);
         isFacing = facingMode == null || !facingMode.equals("environment");
@@ -734,7 +724,6 @@ public class GetUserMediaImpl {
         cameraEnumerator = CameraCapturerUtils.createCameraEnumerator(applicationContext);
         Pair<String, VideoCapturer> result = CameraCapturerUtils.createCameraCapturer(applicationContext, isFacing, deviceId);
         CameraEventsHandler cameraEventsHandler = new CameraEventsHandler();
-        // Pair<String, VideoCapturer> result = createVideoCapturer(cameraEnumerator, isFacing, deviceId, cameraEventsHandler);
 
         if (result == null) {
             return null;

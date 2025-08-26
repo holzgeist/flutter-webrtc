@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CustomVideoEncoderFactory implements VideoEncoderFactory {
-    private final SoftwareVideoEncoderFactory softwareVideoEncoderFactory = new SoftwareVideoEncoderFactory();
-    private final SimulcastVideoEncoderFactoryWrapper simulcastVideoEncoderFactoryWrapper;
+    private SoftwareVideoEncoderFactory softwareVideoEncoderFactory = new SoftwareVideoEncoderFactory();
+    private SimulcastVideoEncoderFactoryWrapper simulcastVideoEncoderFactoryWrapper;
 
     private boolean forceSWCodec  = false;
 

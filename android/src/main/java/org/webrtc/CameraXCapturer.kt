@@ -16,7 +16,6 @@
 
 package org.webrtc
 
-import android.util.Log
 import android.content.Context
 import android.hardware.camera2.CameraManager
 import androidx.annotation.OptIn
@@ -39,7 +38,6 @@ internal class CameraXCapturer(
     eventsHandler: CameraVideoCapturer.CameraEventsHandler?,
     private val useCases: Array<out UseCase> = emptyArray(),
 ) : CameraCapturer(cameraName, eventsHandler, enumerator) {
-    val TAG = "CameraXCapturer"
 
     @FlowObservable
     @get:FlowObservable
@@ -55,38 +53,31 @@ internal class CameraXCapturer(
         height: Int,
         framerate: Int,
     ) {
-        Log.i(TAG, "createCameraSession")
         CameraXSession(
             object : CameraSession.CreateSessionCallback {
                 override fun onDone(session: CameraSession) {
-                    Log.i(TAG, "onDone")
                     createSessionCallback.onDone(session)
                     currentCamera = (session as CameraXSession).camera
                 }
 
                 override fun onFailure(failureType: CameraSession.FailureType, error: String) {
-                    Log.i(TAG, "onFailure")
                     createSessionCallback.onFailure(failureType, error)
                 }
             },
             object : CameraSession.Events {
                 override fun onCameraOpening() {
-                    Log.i(TAG, "onCameraOpening")
                     events.onCameraOpening()
                 }
 
                 override fun onCameraError(session: CameraSession, error: String) {
-                    Log.i(TAG, "onCameraError")
                     events.onCameraError(session, error)
                 }
 
                 override fun onCameraDisconnected(session: CameraSession) {
-                    Log.i(TAG, "onCameraDisconnected")
                     events.onCameraDisconnected(session)
                 }
 
                 override fun onCameraClosed(session: CameraSession) {
-                    Log.i(TAG, "onCameraClosed")
                     events.onCameraClosed(session)
                 }
 

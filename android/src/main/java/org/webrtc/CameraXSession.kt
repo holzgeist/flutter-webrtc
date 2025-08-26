@@ -122,7 +122,6 @@ internal constructor(
 
     private fun start() {
         checkIsOnCameraThread()
-        Logging.d(TAG, "start")
         surfaceTextureHelper.startListening(surfaceTextureListener)
         openCamera()
     }
@@ -251,7 +250,6 @@ internal constructor(
     }
 
     private fun stopInternal() {
-        Logging.d(TAG, "Stop internal")
         checkIsOnCameraThread()
         surfaceTextureHelper.stopListening()
 
@@ -264,7 +262,6 @@ internal constructor(
             cameraProvider.unbindAll()
             cameraThreadHandler.postAtFrontOfQueue {
                 events.onCameraClosed(this)
-                Logging.d(TAG, "Stop done")
             }
         }
     }

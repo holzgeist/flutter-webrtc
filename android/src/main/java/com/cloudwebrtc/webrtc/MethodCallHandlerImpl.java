@@ -1594,7 +1594,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
       ConstraintsMap audioOutputMap = new ConstraintsMap();
       audioOutputMap.putString("label", audioOutput.getName());
       audioOutputMap.putString("deviceId", AudioDeviceKind.fromAudioDevice(audioOutput).typeName);
-      audioOutputMap.putString("groupId", AudioDeviceKind.fromAudioDevice(audioOutput).typeName);
+      audioOutputMap.putString("groupId", "" + AudioDeviceKind.fromAudioDevice(audioOutput).typeName);
       audioOutputMap.putString("kind", "audiooutput");
       array.pushMap(audioOutputMap);
     }

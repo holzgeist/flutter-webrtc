@@ -12,10 +12,8 @@ import org.webrtc.VideoTrack;
 import java.lang.IllegalStateException;
 import java.util.ArrayList;
 import java.util.List;
-import android.util.Log;
 
 public class LocalVideoTrack extends LocalTrack implements VideoProcessor {
-    static private final String TAG = "LocalVideoTrack";
     public interface ExternalVideoFrameProcessing extends VideoSink {
         void setSink(VideoSink videoSink);
     }
@@ -27,7 +25,6 @@ public class LocalVideoTrack extends LocalTrack implements VideoProcessor {
     List<ExternalVideoFrameProcessing> processors = new ArrayList<>();
 
     public void addProcessor(ExternalVideoFrameProcessing processor) {
-        Log.i(TAG, "add processor");
         synchronized (processors) {
             if (!processors.isEmpty()) {
                 processors.get(processors.size()-1).setSink(processor);
@@ -38,7 +35,6 @@ public class LocalVideoTrack extends LocalTrack implements VideoProcessor {
     }
 
     public void removeProcessor(ExternalVideoFrameProcessing processor) {
-        Log.i(TAG, "remove processor");
         synchronized (processors) {
             int toRemove = processors.indexOf(processor);
             if (toRemove < 0) {

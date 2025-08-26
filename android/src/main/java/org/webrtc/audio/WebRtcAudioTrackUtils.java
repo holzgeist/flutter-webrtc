@@ -43,7 +43,8 @@ public abstract class WebRtcAudioTrackUtils {
             Field audioTrackField = audioOutput.getClass().getDeclaredField("audioTrack");
             audioTrackField.setAccessible(true);
             AudioTrack audioTrack = (AudioTrack) audioTrackField.get(audioOutput);
-            if (audioTrack instanceof AudioTrackInterceptor interceptor) {
+            if (audioTrack instanceof AudioTrackInterceptor) {
+                AudioTrackInterceptor interceptor = (AudioTrackInterceptor) audioTrack;
                 audioTrackField.set(audioOutput, interceptor.originalTrack);
                 Log.w(TAG, "Here he is 🦔");
             } else {
