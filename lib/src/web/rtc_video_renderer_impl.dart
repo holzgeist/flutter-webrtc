@@ -276,6 +276,7 @@ class RTCVideoRenderer extends ValueNotifier<RTCVideoValue>
       ..controls = false
       ..srcObject = _videoStream
       ..id = _elementIdForVideo
+      ..disablePictureInPicture = true
       ..setAttribute('playsinline', 'true');
 
     _applyDefaultVideoStyles(element);
