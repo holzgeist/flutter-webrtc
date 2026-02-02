@@ -1,6 +1,22 @@
 
 # Changelog
 
+[1.3.0] - 2026-01-26
+
+* [Mobile/Desktop/Web] feat: Add `priority` and `networkPriority` to RTCRtpEncoding (#1983)
+* [Android] fix(android): Prevent ClassCastException validating track kind in method "mediaStreamAddTrack" (#1980)
+* [Android] fix(android): resolve ConcurrentModificationException in audio callback (#1985)
+* [Android] feat(android): Add configurable audio sample rate with smart defaults (#1967)
+* [Android] fix:hisi chip Error 0x80001001 (#1969)
+* [iOS] fix(ios): resolve critical memory leak in video recording (#1960)
+
+[1.2.1] - 2025-11-21
+
+* [Linux] fix: Enable software AEC/NS/AGC for linux.
+* [Android] fix: Removed redundant null check and release for audioFileRenderer.
+* [Web] fix: Fix Android chrome mobile not rendering html <video> element (#1938)
+* [Web] fix: Clip hard edge on web's rtc_video_view (#1936)
+
 [1.2.0] - 2025-09-13
 
 * [Android] upgrade compileSdk to 36 as standard for 16kb pages support (#1925)
