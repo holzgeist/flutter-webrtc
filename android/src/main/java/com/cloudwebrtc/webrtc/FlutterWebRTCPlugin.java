@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -18,6 +19,8 @@ import com.cloudwebrtc.webrtc.utils.ConstraintsMap;
 
 import org.webrtc.ExternalAudioProcessingFactory;
 import org.webrtc.MediaStreamTrack;
+import org.webrtc.PeerConnectionFactory;
+import org.webrtc.audio.JavaAudioDeviceModule;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
@@ -67,6 +70,15 @@ public class FlutterWebRTCPlugin implements FlutterPlugin, ActivityAware, EventC
 
     public MediaStreamTrack getRemoteTrack(String trackId) {
         return methodCallHandler.getRemoteTrack(trackId);
+    }
+
+    public PeerConnectionFactory getPeerConnectionFactory() {
+        return methodCallHandler.getPeerConnectionFactory();
+    }
+
+    @Nullable
+    public JavaAudioDeviceModule getAudioDeviceModule() {
+        return methodCallHandler == null ? null : methodCallHandler.getAudioDeviceModule();
     }
 
     @Override
