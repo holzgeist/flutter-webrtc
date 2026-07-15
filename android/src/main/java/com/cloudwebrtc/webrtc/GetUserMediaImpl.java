@@ -740,7 +740,7 @@ public class GetUserMediaImpl {
         //   2. all camera support level should greater than LEGACY
         //   see:
         // https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics.html#INFO_SUPPORTED_HARDWARE_LEVEL
-        CameraEnumerator cameraEnumerator;
+        CameraEnumerator cameraEnumerator = CameraCapturerUtils.createCameraEnumerator(applicationContext);
 
 
         String facingMode = getFacingMode(videoConstraintsMap);
@@ -774,7 +774,6 @@ public class GetUserMediaImpl {
                 return buildSharedVideoTrack(existing, entry.getKey(), mediaStream);
             }
         }
-        cameraEnumerator = CameraCapturerUtils.createCameraEnumerator(applicationContext);
         Pair<String, VideoCapturer> result = CameraCapturerUtils.createCameraCapturer(applicationContext, isFacing, deviceId);
         CameraEventsHandler cameraEventsHandler = new CameraEventsHandler();
 
