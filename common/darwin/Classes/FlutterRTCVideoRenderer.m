@@ -254,8 +254,8 @@
         strongSelf.eventSink(@{@"event" : @"didFirstFrameRendered"});
         strongSelf->_isFirstFrameRendered = true;
       }
-    }
-  });
+    });
+  }
 }
 
 /**
